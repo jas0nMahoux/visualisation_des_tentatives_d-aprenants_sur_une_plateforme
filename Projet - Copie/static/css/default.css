@@ -1,0 +1,202 @@
+/*
+----------------------------------------------------------------------------------------------------------
+                                La Base (utilisation de toute la page)            
+----------------------------------------------------------------------------------------------------------
+*/
+
+html, body {
+    height: 100%;
+}
+
+body {
+    margin:0px;
+	padding:0px;
+
+}
+
+
+/*
+----------------------------------------------------------------------------------------------------------
+                                            Le CSS du Coté gauche            
+----------------------------------------------------------------------------------------------------------
+*/
+
+/* Titre du coté gauche */
+h1{
+    font-size: 20px;
+}
+
+.left-side {
+    float: left;
+    margin: 0px 0px;
+    background-color: #edf0f2;;
+    width: 22%;
+    height: 100%;
+    min-height: 740px;
+    padding-bottom: 15px;
+    position: fixed;
+    overflow-x: hidden;   /* Desactive la barre de scroll horizentale */
+}
+
+.top-left-side {
+    background: #333;
+    padding-top: 40px;
+    padding-bottom: 15px;
+    text-align: center;
+    color: white;
+    font-size: 100%;
+    position: fixed;   /* pour que le haut du coté gauche reste immobile */
+    background-color: rgb(100, 148, 237);
+    width: 21%;
+}
+
+.bottom-left-side{
+    padding-top: 150px;
+}
+
+table{
+    padding-top: 15px;
+}
+
+td {
+    text-align: right;
+}
+
+th {
+    padding-left: 20px;
+    text-align: left;
+}
+
+
+/*
+----------------------------------------------------------------------------------------------------------
+                                            Le CSS du Coté Droit          
+----------------------------------------------------------------------------------------------------------
+*/
+
+.right-side {
+    float: right;
+    position: relative;
+}
+
+
+/*------------------------ listeExo.html ------------------------*/
+
+.block-chart {
+    float: right;
+    height: 40px;
+    width: 600px;
+    margin-top: 200px;
+    padding:0;
+    text-align: center;
+}
+
+.dropdown-exo li{
+    float: left;  
+    list-style: none; 
+}
+
+.dropdown-exo li{							
+    padding: 18px 0; 
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-exo li ul{
+    display: none;				
+}
+
+.dropdown-exo li:hover ul{
+    display: block;
+}
+
+.dropdown-exo li ul li {
+    border-left: 1px solid #444444; 
+    border-right: 1px solid #444444; 
+    border-top: 1px solid #c9d4d8; 
+    border-bottom: 1px solid #444444;
+    padding: 5px;
+}
+
+.dropdown-exo li ul li:hover {
+    background-color: #333;
+}
+
+/*------------------------ exoID.html ------------------------*/
+
+h2, p {
+    text-align: center;
+}
+
+/* Nom du User ( tracage d'un user ) */
+h3 {
+    font-size: 18px;
+    text-align: center;
+    color: #333;
+    padding: 10px;
+    text-decoration: none;
+    border: 1px solid #333;
+    width: 200px;
+    cursor: pointer;
+}
+
+/* Date de chaque programme ( tracage d'un user ) */
+.right-side div p {
+    font-size: 13px;
+    padding: 12px;
+    text-align: left;
+    background-color: lightgrey;
+    border-left: 6px solid #333;
+    margin-right: 60px;
+    margin-left: 10px;
+    margin-bottom: 0px;
+}
+
+/* Programme selectionné */
+.right-side div pre {
+    font-size: 13px;
+    padding: 12px;
+    text-align: left;
+    background-color: rgb(240,128,128, 0.5);
+    border-left: 6px solid red;
+    margin-right: 60px;
+    margin-left: 10px;
+    margin-top: 0px;
+}
+
+/* Programme selectionné si il est valide */
+.right-side div .valide {
+    border-left: 6px solid rgb(0, 128, 0);
+    background-color: #90EE90;
+}
+
+
+/*
+----------------------------------------------------------------------------------------------------------
+                                        Le CSS du Menu de navigation
+                                           ( Exercice, Etudiant )            
+----------------------------------------------------------------------------------------------------------
+*/
+
+
+#nav{
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+    width: 78%;
+    float: right;
+}
+
+#nav .button-nav a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+#nav li{
+    float: left ;
+}

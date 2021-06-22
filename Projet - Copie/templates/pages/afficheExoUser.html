@@ -1,0 +1,22 @@
+
+{% extends 'layout/base.html' %}
+<link rel="stylesheet" type="text/css" href="../../static/css/afficheExoUser.css">
+
+
+{% block body %}
+
+<style type="text/css">.button-nav a:hover {background-color: #111;}</style>
+<div class="left-side">
+
+    <div class="top-left-side">
+        <h1 class="t1">Exercices de l'étudiant : {{ user }}</h1>
+        <p>{{ user }} a fait {{ listeExoUser|length }} Exercice(s) et {{ nombreTentative }} tentative(s)</p>
+    </div>
+    <ul class="liste-exo">
+        {% for elem in listeExoUser %}
+            <li><a>{{elem}}</a></li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}

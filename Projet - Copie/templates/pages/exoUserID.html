@@ -1,0 +1,357 @@
+{% extends 'layout/base.html' %}
+
+{% block body %}
+
+<style type="text/css">.button-nav a:hover {background-color: #111;}</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.7.7"></script>
+<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+<script type="text/javascript" src="https://npmcdn.com/Chart.Zoom.js@0.3.0/Chart.Zoom.min.js"></script>
+
+
+<div class="left-side">
+    <div class="top-left-side">
+        <h1>{{ exoID }}</h1>
+        <p>étudiants qui ont réalisé l'exercice :</p>
+    </div>
+
+    <div class="bottom-left-side">
+        <table>
+            <tbody>
+                {% for i in range(0, exoID_Done|length) %}
+                    <tr>
+                        <th>
+                            <input type="checkbox" id="{{exoID_Done[i]}}" name="{{exoID_Done[i]}}">
+                            <label for="scales">{{ exoID_Done[i] }} : </label>
+                        </th>
+                        <td>{{ nb_tentative[i] }} tentative(s)</td>
+                        <td>{{ nb_tentative_correct[i] }} correct</td>
+                    </tr>        
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="footer-left-side">
+            <div>
+                <table>
+                    <tr>
+                        <th>Type :</th>
+                        <td><button id="graph1-scatter">Normal</button></td>
+                        <td><button id="graph1-line">Tracage</button></td>
+                    </tr>
+                    <tr>
+                        <th>Tri par :</th>
+                        <td><button id="graph1-user">Etudiants</button></td>
+                        <td><button id="graph1-validite">Validité</button></td>
+                    </tr>
+                    <tr>
+                        <td><button id="graph1-reset">reset</button></td>
+                        <td><button id="graph1-remove">remove</button></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="right-side" class="right-side">
+    <canvas id ="graph1" width="1170" height="600"></canvas>
+    <div class="bottom-right-side">
+        <div id="programme-etudiant">
+        </div>
+        <div id="solution-prof">
+            <section>
+                <h2>Solution du Prof</h2>
+            </section>
+        </div>
+    </div>
+    <script>
+    
+        /*------------------------------------------------------------------------------------------
+
+                                    Les constantes pour l'utilisation des boutons
+
+        ------------------------------------------------------------------------------------------*/
+
+        // Bouton qui change le type de graphique en line (graphique en courbes)
+        const line = document.getElementById('graph1-line');
+        line.addEventListener('click', changeline);
+
+        // Bouton qui change le type de graphique en scatter (graphiques en nuages de points)
+        const scatter = document.getElementById('graph1-scatter');
+        scatter.addEventListener('click', changescatter);
+
+        // Bouton qui change la couleur des points du graphique (vert pour prog valide et rouge pour non-valide)
+        const triage_par_validite = document.getElementById('graph1-validite');
+        triage_par_validite.addEventListener('click', triageValide);
+
+        // Bouton qui met le zoom à sa position initial
+        const reset = document.getElementById('graph1-reset');
+        reset.addEventListener('click', resetZoom);
+
+        // Bouton qui supprime le plus ancien des programmes sélect
+        const removeProgramme = document.getElementById('graph1-remove');
+        removeProgramme.addEventListener('click', removeProg);
+
+
+        /*------------------------------------------------------------------------------------------
+        
+                                                 Checkboxes
+
+        ------------------------------------------------------------------------------------------*/
+
+        var checkboxes = document.querySelectorAll("input[type=checkbox]");
+        checkboxes.forEach(function(checkbox){
+            checkbox.addEventListener('click', changeColorID)
+        });
+
+
+        /*------------------------------------------------------------------------------------------
+        
+                                    Les variables indispensable (Les données)
+
+        ------------------------------------------------------------------------------------------*/
+
+        var uploads = {{ liste_upload | safe}};
+
+        var Datasets_v2 = {{ Datasets_v2 | safe }};
+
+        var Datasets_v3 = {{ Datasets_v2 | safe }};
+
+
+        /*------------------------------------------------------------------------------------------
+        
+                                        Mise en place du graphique
+
+        ------------------------------------------------------------------------------------------*/
+
+        var ctx = document.getElementById("graph1").getContext("2d");
+
+        var config = {
+
+                type: "scatter",
+                data: { datasets:  Datasets_v2 },
+                options: {
+                    onClick: unClique,
+                    animation:{duration:0},
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero:true
+                            }
+                        }]
+                    },
+                    pan: {
+                        enabled: true,
+                        mode: 'xy'
+                    },
+                    zoom: {
+                        enabled: true,
+                        mode: 'xy'
+                    },
+                    responsive : false,
+                    scaleShowLabels : false,
+                        legend: {
+                        display: false
+                    },
+                    tooltips: {
+                        displayColors: false,
+                        callbacks: {
+                            label: function(tooltipItem, data) {
+                                var label = data.datasets[tooltipItem.datasetIndex].label;
+                                return label;
+                            }
+                        }
+                    }
+                }
+        };
+
+        var graph1 = new Chart(ctx, config);
+
+        var indexColor = 0;
+
+        
+        /*------------------------------------------------------------------------------------------
+        
+                                                Les fonctions
+
+        ------------------------------------------------------------------------------------------*/
+        
+        // Fonction qui met le zoom au point de départ
+        function resetZoom(){
+            graph1.resetZoom();
+        }
+
+        // Fonction qui supprime le plus ancien des programmes sélectionné 
+        function removeProg(){
+            var programmeSelect = document.getElementById("programme-select");
+            var emplacement = document.getElementById("programme-etudiant");
+            emplacement.removeChild(programmeSelect);
+
+        }
+        
+        // Fonction qui affiche le programme de l'étudiant lorsque l'on clique sur un point
+        function unClique(evt, array){
+            var a = 0;
+            if(array[0]){
+
+                let programmeSelect = document.createElement("section");
+                programmeSelect.setAttribute("id", "programme-select")
+
+                var emplacement = document.getElementById("programme-etudiant");
+
+                var p = document.createElement("p");
+                var pre = document.createElement("pre");
+                var button = document.createElement("button");
+
+                var i = array[0]["_datasetIndex"];
+                var n = parseInt(array[0]["_index"]);
+
+                if (uploads[graph1.config.data.datasets[i].labelF] != undefined){
+                    pre.textContent = uploads[graph1.config.data.datasets[i].labelF][n][2] + "\n\n( x: " + graph1.config.data.datasets[i].data[n]["x"] + " et y: "+ graph1.config.data.datasets[i].data[n]["y"] +" )\n\n"+ uploads[graph1.config.data.datasets[i].labelF][n][0];
+                    p.textContent = graph1.config.data.datasets[i].labelF + " :" ;
+                    emplacement.appendChild(programmeSelect);
+                    programmeSelect.appendChild(p);
+                    programmeSelect.appendChild(pre);
+                }
+                else {
+                    pre.textContent = uploads[graph1.config.data.datasets[i].labelV][n][2] + "\n\n( x: " + graph1.config.data.datasets[i].data[n]["x"] + " et y: "+ graph1.config.data.datasets[i].data[n]["y"] +" )\n\n"+ uploads[graph1.config.data.datasets[i].labelV][n][0];
+                    p.textContent = graph1.config.data.datasets[i].labelV + " :" ;
+                    emplacement.appendChild(programmeSelect);
+                    programmeSelect.appendChild(p);
+                    programmeSelect.appendChild(pre);
+                    pre.setAttribute("class", "valide");
+                }
+                
+                button.textContent = "Effacer Programme" ;
+                
+                programmeSelect.appendChild(button);            
+                button.addEventListener('click', removeProg);
+                a++;
+            }
+        }
+
+        function changeline(){
+            var uptadetype = 'line';
+            for(i =0; i< (graph1.data.datasets).lenght; i++){
+                graph1.data.datasets[i].type = uptadetype;
+            }
+            graph1.config.data.type = uptadetype;
+            graph1.config.type = uptadetype;
+            graph1.update();
+        };
+
+        function changescatter(){
+            var uptadetype = 'scatter';
+            graph1.config.type = uptadetype;
+            graph1.update();
+        };
+
+        // Fonction qui affiche le tracage d'un ou plusieur étudiant (de différente couleur) et met l'opacitée des autres tentatives à 0.
+        function changeColorID(){
+            var id = this.getAttribute('id');
+            var colorTracage = ['rgb(255, 0, 0, 0.4)', 'rgb(255, 165, 0, 0.4)', 'rgb(255, 255, 0, 0.4)', 'rgb(0, 128, 0, 0.4)', 'rgb(100, 148, 237, 0.4)', 'rgb(128, 0, 128, 0.4)']
+            var colorBorderTracage = ['red', 'orange', 'yellow', 'green', 'cornflowerblue', 'purple']
+            
+            if (this.checked) {
+                for (let i=0; i<(graph1.data.datasets).length; i++){
+                    if ( graph1.data.datasets[i].label === id ){
+                        graph1.data.datasets[i].backgroundColor = colorTracage[indexColor];
+                        graph1.data.datasets[i].borderColor = colorBorderTracage[indexColor];                        
+                        graph1.data.datasets[i].type = 'line';
+                        indexColor = indexColor + 1;
+                    }
+                    
+                    else if ( graph1.data.datasets[i].type === 'scatter'){
+                        graph1.data.datasets[i].backgroundColor = 'rgb(75, 192, 192, 0.0)';
+                        graph1.data.datasets[i].borderColor='rgb(75, 192, 192, 0.0)';
+                    }
+                };
+            } else {
+                indexColor = 0;
+                for (let i=0; i<(graph1.data.datasets).length; i++){
+                    if (graph1.data.datasets[i].label != id && graph1.data.datasets[i].type == 'line'){
+                        graph1.data.datasets[i].backgroundColor = colorTracage[indexColor];
+                        graph1.data.datasets[i].borderColor = colorBorderTracage[indexColor];
+                        indexColor = indexColor + 1;
+                    }
+                    else{
+                        graph1.data.datasets[i].type = 'scatter';
+                        graph1.data.datasets[i].backgroundColor = 'rgb(75, 192, 192, 0.0)';
+                        graph1.data.datasets[i].borderColor='rgb(75, 192, 192, 0.0)';
+                    }
+                };
+            };
+            
+            graph1.update();
+            
+            if (this.checked){
+
+                for (let i=0; i<Object.keys(uploads).length; i++){
+
+                    if (Object.keys(uploads)[i] === id){
+
+                        let codage = document.createElement("section");
+                        codage.setAttribute("id", id+"-code")
+
+                        var h2 = document.createElement("h2")
+                        h2.textContent = id;
+                        codage.appendChild(h2);
+
+                        for (let j=0; j< uploads[id].length; j++){
+
+                            
+                            
+                            var pre = document.createElement("pre");
+                            var p = document.createElement("p");
+                            let section = document.getElementById("programme-etudiant");
+                            
+                            pre.textContent=uploads[id][j][0];
+                            p.textContent=uploads[id][j][2];
+                            section.appendChild(codage);
+                            
+                            codage.appendChild(p);
+                            codage.appendChild(pre);
+                            
+
+                            if(uploads[id][j][1] == '1'){
+                                pre.setAttribute("class", "valide");
+                            }
+
+                        }
+
+                    };
+                };
+            } 
+            else {
+                section = document.getElementById("programme-etudiant");
+                codage = document.getElementById(id+"-code");
+                section.removeChild(codage);
+            };
+
+            var aucunTracage = true;
+            for (let i=0; i<(graph1.data.datasets).length; i++){
+                if(graph1.data.datasets[i].type == 'line'){
+                    aucunTracage = false;
+                }
+            }
+            if (aucunTracage){
+                for (let i=0; i<(graph1.data.datasets).length; i++){
+                    graph1.data.datasets[i].type = 'scatter';
+                    graph1.data.datasets[i].backgroundColor = Datasets_v3[i]["backgroundColor"];
+                    graph1.data.datasets[i].borderColor=Datasets_v3[i]["borderColor"];
+                } 
+            }
+            graph1.update();
+        }
+        
+        function triageValide(evt){
+            graph1.update();
+        }
+        
+    </script>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'layout/base.html' %}
+
+{% block body %}
+
+<style type="text/css">
+    .active-users{background-color: cornflowerblue;}
+    .button-nav a:hover:not(.active-users) {background-color: #111;}
+</style>
+
+<div class="left-side">
+
+    <div class="top-left-side">
+        <h1>Liste des étudiants</h1>
+
+        <div role="search"> <!-- Barre de recherche non disponible -->
+            <input role="searchbox" id="search" type="text" placeholder="ID, nom ou prénom">
+            <button role="button">Search</button>
+            <script>
+                function test(){
+                    var a = document.getElementById(search.value)
+                }
+            </script>
+        </div>
+
+    </div>
+
+    <div class="bottom-left-side">
+        <ul class="liste-users">
+            <!--Pour chaque éléments dans listeUsers chaque élément est renvoyé sous forme de liste item-->
+            {% for elem in listeUsers %}
+                <li><a href="/-{{elem}}">{{ elem }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<div class="right-side">
+</div>
+
+{% endblock %}
+

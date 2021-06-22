@@ -1,0 +1,158 @@
+{% extends 'layout/base.html' %}
+{% block body %}
+
+<style type="text/css">
+    .active-exo { background-color: cornflowerblue; }
+    .button-nav a:hover:not(.active-exo) { background-color: #111; }
+</style>
+
+<div class="left-side">
+
+    <div class="top-left-side">
+        <h1>Liste des exercices</h1>
+        <p>{{ listeExo|length }} Exercice(s)</p>
+    </div>
+
+    <div class="bottom-left-side-liste-exo">
+        <!--Pour chaque éléments dans listeExo chaque élément est renvoyé sous forme de liste item-->
+        {% for elem in listeExo %}
+            <ul class="dropdown-exo">
+                <li>
+                    {{elem}}
+                    <ul class="dropdown-content">
+                        <li onclick="afficheState('{{elem}}')">Statistique</li>
+                        <li><a href="{{ elem }}">Graphique</a></li>
+                    </ul>
+                </li>
+            </ul>
+        {% endfor %}
+
+    </div> 
+</div>
+
+
+<div class="right-side">
+
+    <h2><span id="nomExercice"></span></h2>
+    <p><span id="moyenneAttempt"></span></p>
+    
+    <div id="div-block-chart" class="div-block-chart">
+    
+        <!-- doughnut - Tentative Valide / Invalide -->
+        <div class="block-chart">
+            <div>
+                <h3>Tentative valide / invalide</h3>
+            </div>
+            <canvas id="home-doughnut-attempt"></canvas>
+        </div>
+        
+        <!-- doughnut - Users qui ont au moins une tentative juste dans leur tentative -->
+        <div class="block-chart">
+            <div>
+                <h3>Réussite des Etudiants</h3>
+            </div>
+            <canvas id="home-doughnut-attempt-2"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    /*------------------------------------------------------------------------------------------
+        
+                                    Les variables indispensable (Les données)
+
+    ------------------------------------------------------------------------------------------*/
+
+    /*  Ce que contient chartDico
+
+                nom_de_lexercice : 
+                    - Nombre d'étudiant qui ont réussit cet exercice
+                    - Nombre d'étudiant qui ne l'ont pas réussit
+                    - Nombre de tentative correct de l'exercice
+                    - Nombre de tentative incorrect de l'exercice
+    */
+    chartDico = {{ chartDico | safe }};
+
+    // variable qui doit être initaliser 
+    var exercice = "70ae7ad6cf504e0fa8cedebd8e8a825f";
+    
+    /*------------------------------------------------------------------------------------------
+        
+                                        Mise en place des graphiques
+
+    ------------------------------------------------------------------------------------------*/
+
+    /*--------------------------------| 1er graphique |--------------------------------*/
+
+    var ctx = document.getElementById("home-doughnut-attempt").getContext("2d");
+
+    var data = {
+        labels: ['Tentative incorrecte','Tentative correcte'],
+        datasets: [{
+            label: 'My First Dataset',
+            data: [chartDico[exercice][3],chartDico[exercice][2]],
+            backgroundColor: ['rgb(51,51,51)','rgb(100, 149, 237)'],
+        }]
+    };
+
+    var config = {
+        type: 'doughnut',
+        data: data,
+        options: {responsive: true}
+    };
+
+    var doughnutAttempt1 = new Chart(ctx, config)
+
+
+    /*--------------------------------| 2nd graphique |--------------------------------*/
+
+    var ctx2 = document.getElementById("home-doughnut-attempt-2").getContext("2d");
+
+    var data2 = {
+        labels: ["Etudiant non valide", "Etudiant validé"],
+        datasets: [{
+            label: 'My First Dataset',
+            data: [chartDico[exercice][1],chartDico[exercice][0]],
+            backgroundColor: ['rgb(51, 51, 51)', 'rgb(100, 149, 237)'],
+        }]
+    };
+
+    var options2 = {
+        responsive: true,
+    };
+
+    var config2 = {
+        type: 'doughnut',
+        data: data2,
+    };
+
+    var doughnutAttempt2 = new Chart(ctx2, config2, options2)
+
+
+    /*------------------------------------------------------------------------------------------
+        
+                                                Les fonctions
+
+    ------------------------------------------------------------------------------------------*/
+
+    // Fonction qui affiche la moyenne de chaque exercice et met à jour les deux graphique ( doughnutAttempt 1 & doughnutAttempt 2).
+    function afficheState(exoID){
+
+        var exercice = exoID;
+        
+        doughnutAttempt1.config.data.datasets[0].data = [ chartDico[exoID][3], chartDico[exoID][2] ];
+        doughnutAttempt2.config.data.datasets[0].data = [ chartDico[exoID][1], chartDico[exoID][0] ];
+        
+        var moyenne = (chartDico [exoID][3] + chartDico[exoID][2]) / (chartDico[exoID][1] + chartDico[exoID][0])
+        
+        document.getElementById("nomExercice").innerHTML = exercice;
+        document.getElementById("moyenneAttempt").innerHTML = "Moyenne: " + moyenne + " tentatives par étudiant";
+        
+        doughnutAttempt1.update();
+        doughnutAttempt2.update();
+    }
+
+</script>
+
+{% endblock %}

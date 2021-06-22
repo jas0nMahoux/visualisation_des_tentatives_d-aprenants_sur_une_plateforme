@@ -1,0 +1,99 @@
+
+/*
+----------------------------------------------------------------------------------------------------------
+                                La Base (utilisation de toute la page)            
+----------------------------------------------------------------------------------------------------------
+*/
+
+body {
+    background: white;
+    margin:0px;
+	padding:0px;
+}
+
+
+/*
+----------------------------------------------------------------------------------------------------------
+                                            Le CSS du Coté gauche
+----------------------------------------------------------------------------------------------------------
+*/
+
+#home {
+    height: 753px;
+    display: flex;
+    overflow: hidden;
+}
+
+.home-left-side {
+    position: relative;
+    width: 40%;
+    height: 100%;
+    background-color: #6494ed;
+}
+
+
+/*------------------------ Titre du Home ------------------------*/
+
+/* CSS du Espace Enseignant */
+h1 {               
+    color: white;
+    font-size: 80px;
+    padding-top: 200px;
+    padding-bottom: 20px;
+    margin-left: 8vw;
+}
+
+
+/*------------------------ Navigation ------------------------*/
+
+/* décalage vers la gauche */
+.btn-home {
+    margin-right: 130px;
+}
+
+/* CSS Etudiant & Exercice */
+.btn-text {
+    font-size: 18px;
+    text-align: center;
+    color: #f1f1f1;
+    padding: 15px;
+    text-decoration: none;
+    float: right;
+    border: 1px solid #f1f1f1;
+    width: 150px;
+    cursor: pointer;
+}
+
+/* Mise en place des bordures arrondis de Exercice */
+#btn-home-1 {
+    border-bottom-right-radius: 40px;
+    border-top-right-radius: 40px;
+}
+
+/* Mise en place des bordures arrondis de Etudiant */
+#btn-home-2 {
+    border-bottom-left-radius: 40px;
+    border-top-left-radius: 40px;
+}
+
+/* Effet passage de la souris sur Etudiant & Exercice*/
+.btn-text:hover {
+    transition: all 0.2s ease;
+    color: #000;
+    background: #f1f1f1;
+}
+
+
+/*
+----------------------------------------------------------------------------------------------------------
+                                            Le CSS du Coté droit
+----------------------------------------------------------------------------------------------------------
+*/
+
+/* Mise en place de l'image en arrière plan */
+.home-right-side {  
+    background-image: url(../images/unc.jpg);
+    background-position: 34%;
+    opacity: 0.8;
+    width: 60%;
+}

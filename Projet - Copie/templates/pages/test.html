@@ -1,0 +1,41 @@
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+
+<canvas id="myChart" width="500" height="150"></canvas>
+<script>
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'scatter',
+        data: {datasets: [
+                {   "label": "user1",
+                    "data": [{'x':5,'y':6},
+                    {'x':2,'y':6},
+                    {'x':3,'y':2.5},
+                    {'x':2.5,'y':5.5},
+                    {'x':4,'y':3}],
+                    "borderColor": 'green',
+                    "type": "scatter",
+                    "backgroundColor":'green',
+                    "pointHoverBackgroundColor": 'rgb(100, 148, 237)'},
+
+                {   "label": "user2",
+                    "data": [{'x':3,'y':4},
+                            {'x':3.5,'y':4},
+                            {'x':1,'y':4.26},
+                            {'x':6,'y':3}],
+                    "borderColor": 'red',
+                    "type": "scatter",
+                    "backgroundColor":'red',
+                    "pointHoverBackgroundColor": 'rgb(100, 148, 237)'}
+            ]},
+        options: {
+            tooltips: {
+                callbacks: {
+                    label: function(tooltipItem, data) {
+                        var label = data.datasets[tooltipItem.datasetIndex].label;
+                        return label;
+                            }
+                        }
+            }
+        }       
+    });
+</script>
